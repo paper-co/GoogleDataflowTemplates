@@ -10,7 +10,7 @@ steps:
       - '-DskipTests'
       - '-DprojectId="${_TARGET_PROJECT}"'
       - '-DbucketName="${_TARGET_BUCKET_NAME}"'
-      - '-DstagePrefix="images/$(date +%Y_%m_%d-%H_%M_)"'
+      - '-DstagePrefix="images/$(date +%Y_%m_%d-%H_%M)"'
       - '-DtemplateName="Cloud_Datastream_to_BigQuery"'
       - '-pl=v2/datastream-to-bigquery'
       - '-am'
