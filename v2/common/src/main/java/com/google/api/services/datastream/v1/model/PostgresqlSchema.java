@@ -29,8 +29,7 @@ package com.google.api.services.datastream.v1.model;
 public final class PostgresqlSchema extends com.google.api.client.json.GenericJson {
 
   /** Tables in the schema. The value may be {@code null}. */
-  @com.google.api.client.util.Key
-  private java.util.List<PostgresqlTable> postgresqlTables;
+  @com.google.api.client.util.Key private java.util.List<PostgresqlTable> postgresqlTables;
 
   /** Schema name. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.String schema;

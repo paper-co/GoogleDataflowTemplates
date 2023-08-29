@@ -29,8 +29,7 @@ package com.google.api.services.datastream.v1.model;
 public final class PostgresqlRdbms extends com.google.api.client.json.GenericJson {
 
   /** Postgresql schemas/databases in the database server. The value may be {@code null}. */
-  @com.google.api.client.util.Key
-  private java.util.List<PostgresqlSchema> postgresqlSchemas;
+  @com.google.api.client.util.Key private java.util.List<PostgresqlSchema> postgresqlSchemas;
 
   /**
    * Postgresql schemas/databases in the database server.
