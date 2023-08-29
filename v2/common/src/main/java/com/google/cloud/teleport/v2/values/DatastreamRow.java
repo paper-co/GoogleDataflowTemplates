@@ -134,6 +134,18 @@ public class DatastreamRow {
       }
     }
 
+    // Special case handling for {_metadata_stream}
+    if (template.contains("{_metadata_stream}")) {
+      String metadataValue = values.get("_metadata_stream");
+      if (metadataValue != null) {
+        int lastSlashIndex = metadataValue.lastIndexOf("/");
+        if (lastSlashIndex != -1 && lastSlashIndex < metadataValue.length() - 1) {
+          metadataValue = metadataValue.substring(lastSlashIndex + 1);
+        }
+        // Update the values map with the modified metadata value
+        values.put("_metadata_stream", metadataValue);
+      }
+    }
     // Substitute any templated values in the template
     String result = StringSubstitutor.replace(template, values, "{", "}");
     return result;
@@ -165,10 +177,12 @@ public class DatastreamRow {
   public List<String> getSortFields() {
     if (this.getSourceType().equals("mysql")) {
       return Arrays.asList("_metadata_timestamp", "_metadata_log_file", "_metadata_log_position");
-    } else {
-      // Current default is oracle.
+    } else if (this.getSourceType().equals("oracle")) {
       return Arrays.asList(
           "_metadata_timestamp", "_metadata_scn", "_metadata_rs_id", "_metadata_ssn");
+    } else {
+      // Default is postgres now.
+      return Arrays.asList("_metadata_timestamp", "_metadata_lsn", "_metadata_tx_id");
     }
   }
 

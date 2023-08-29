@@ -91,7 +91,7 @@ public final class FormatDatastreamJsonToJson
       outputObject.put("_metadata_schema", getSourceMetadata(record, "database"));
       outputObject.put("_metadata_log_file", getSourceMetadata(record, "log_file"));
       outputObject.put("_metadata_log_position", getSourceMetadataAsLong(record, "log_position"));
-    } else {
+    } else if (sourceType.equals("oracle")) {
       // Oracle Specific Metadata
       outputObject.put("_metadata_schema", getSourceMetadata(record, "schema"));
       setOracleRowIdValue(outputObject, getSourceMetadata(record, "row_id"));
@@ -99,6 +99,11 @@ public final class FormatDatastreamJsonToJson
       outputObject.put("_metadata_ssn", getSourceMetadataAsLong(record, "ssn"));
       outputObject.put("_metadata_rs_id", getSourceMetadata(record, "rs_id"));
       outputObject.put("_metadata_tx_id", getSourceMetadata(record, "tx_id"));
+    } else {
+      // PostgreSQL Specific Metadata
+      outputObject.put("_metadata_schema", getSourceMetadata(record, "schema"));
+      outputObject.put("_metadata_tx_id", getSourceMetadataAsLong(record, "tx_id"));
+      outputObject.put("_metadata_lsn", getSourceMetadataAsLong(record, "lsn"));
     }
 
     JsonNode payload = record.get("payload");

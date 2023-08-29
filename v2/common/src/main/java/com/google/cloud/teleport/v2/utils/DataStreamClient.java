@@ -31,6 +31,10 @@ import com.google.api.services.datastream.v1.model.OracleColumn;
 import com.google.api.services.datastream.v1.model.OracleRdbms;
 import com.google.api.services.datastream.v1.model.OracleSchema;
 import com.google.api.services.datastream.v1.model.OracleTable;
+import com.google.api.services.datastream.v1.model.PostgresqlColumn;
+import com.google.api.services.datastream.v1.model.PostgresqlRdbms;
+import com.google.api.services.datastream.v1.model.PostgresqlSchema;
+import com.google.api.services.datastream.v1.model.PostgresqlTable;
 import com.google.api.services.datastream.v1.model.SourceConfig;
 import com.google.api.services.datastream.v1.model.Stream;
 import com.google.auth.Credentials;
@@ -62,6 +66,8 @@ public class DataStreamClient implements Serializable {
   private static final Pattern PARENT_IN_CONNECTION_PROFILE_PATTERN =
       Pattern.compile("(projects/.*/locations/.*)/connectionProfiles/.*");
   private static final Pattern TIMESTAMP_PATTERN = Pattern.compile("TIMESTAMP\\(?\\d?\\)?");
+  private static final Pattern TIMESTAMP_WITHOUT_TIMEZONE_PATTERN =
+      Pattern.compile("TIMESTAMP\\(?\\d?\\)? WITHOUT TIME ZONE");
   private static final Pattern TIMESTAMP_WITH_TIMEZONE_PATTERN =
       Pattern.compile("TIMESTAMP\\(?\\d?\\)? WITH TIME ZONE");
   private static final Pattern TIMESTAMP_WITH_LOCAL_TIMEZONE_PATTERN =
@@ -120,6 +126,8 @@ public class DataStreamClient implements Serializable {
       return getMysqlObjectSchema(streamName, schemaName, tableName, sourceConnProfile);
     } else if (sourceConnProfile.getOracleSourceConfig() != null) {
       return getOracleObjectSchema(streamName, schemaName, tableName, sourceConnProfile);
+    } else if (sourceConnProfile.getPostgresqlSourceConfig() != null) {
+      return getPostgresqlObjectSchema(streamName, schemaName, tableName, sourceConnProfile);
     } else {
       LOG.error("Source Connection Profile Type Not Supported");
       throw new IOException("Source Connection Profile Type Not Supported");
@@ -134,6 +142,8 @@ public class DataStreamClient implements Serializable {
         return getMysqlPrimaryKeys(streamName, schemaName, tableName, sourceConnProfile);
       } else if (sourceConnProfile.getOracleSourceConfig() != null) {
         return getOraclePrimaryKeys(streamName, schemaName, tableName, sourceConnProfile);
+      } else if (sourceConnProfile.getPostgresqlSourceConfig() != null) {
+        return getPostgresqlPrimaryKeys(streamName, schemaName, tableName, sourceConnProfile);
       } else {
         throw new IOException("Source Connection Profile Type Not Supported");
       }
@@ -166,6 +176,9 @@ public class DataStreamClient implements Serializable {
     } else if (sourceConnProfile.getOracleSourceConfig() != null) {
       OracleRdbms oracleRdbms = buildOracleRdbmsForTable(schemaName, tableName);
       discoverRequest = discoverRequest.setOracleRdbms(oracleRdbms);
+    } else if (sourceConnProfile.getPostgresqlSourceConfig() != null) {
+      PostgresqlRdbms postgresqlRdbms = buildPostgresqlRdbmsForTable(schemaName, tableName);
+      discoverRequest = discoverRequest.setPostgresqlRdbms(postgresqlRdbms);
     } else {
       throw new IOException("Source Connection Profile Type Not Supported");
     }
@@ -348,6 +361,70 @@ public class DataStreamClient implements Serializable {
     return rdbms;
   }
 
+  private Map<String, StandardSQLTypeName> getPostgresqlObjectSchema(
+      String streamName, String schemaName, String tableName, SourceConfig sourceConnProfile)
+      throws IOException {
+    Map<String, StandardSQLTypeName> objectSchema = new HashMap<String, StandardSQLTypeName>();
+
+    PostgresqlTable table =
+        discoverPostgresqlTableSchema(streamName, schemaName, tableName, sourceConnProfile);
+    for (PostgresqlColumn column : table.getPostgresqlColumns()) {
+      StandardSQLTypeName bqType = convertPostgresqlToBigQueryColumnType(column);
+      objectSchema.put(column.getColumn(), bqType);
+    }
+    return objectSchema;
+  }
+
+  public List<String> getPostgresqlPrimaryKeys(
+      String streamName, String schemaName, String tableName, SourceConfig sourceConnProfile)
+      throws IOException {
+    List<String> primaryKeys = new ArrayList<String>();
+    PostgresqlTable table =
+        discoverPostgresqlTableSchema(streamName, schemaName, tableName, sourceConnProfile);
+    for (PostgresqlColumn column : table.getPostgresqlColumns()) {
+      Boolean isPrimaryKey = column.getPrimaryKey();
+      if (BooleanUtils.isTrue(isPrimaryKey)) {
+        primaryKeys.add(column.getColumn());
+      }
+    }
+
+    return primaryKeys;
+  }
+
+  /**
+   * Return a {@link PostgresqlTable} object with schema and PK information.
+   *
+   * @param streamName A fully qualified Stream name (ie. projects/my-project/stream/my-stream)
+   * @param schemaName The name of the schema for the table being discovered.
+   * @param tableName The name of the table to discover.
+   * @param sourceConnProfile The SourceConfig connection profile to be discovered.
+   */
+  public PostgresqlTable discoverPostgresqlTableSchema(
+      String streamName, String schemaName, String tableName, SourceConfig sourceConnProfile)
+      throws IOException {
+    Datastream.Projects.Locations.ConnectionProfiles.Discover discoverConnProfile =
+        getDiscoverTableRequest(streamName, schemaName, tableName, sourceConnProfile);
+
+    PostgresqlRdbms tableResponse = discoverConnProfile.execute().getPostgresqlRdbms();
+    PostgresqlSchema schema = tableResponse.getPostgresqlSchemas().get(0);
+    PostgresqlTable table = schema.getPostgresqlTables().get(0);
+
+    return table;
+  }
+
+  private PostgresqlRdbms buildPostgresqlRdbmsForTable(String schemaName, String tableName) {
+    List<PostgresqlTable> postgresqlTables = new ArrayList<PostgresqlTable>();
+    postgresqlTables.add(new PostgresqlTable().setTable(tableName));
+
+    List<PostgresqlSchema> postgresqlSchemas = new ArrayList<PostgresqlSchema>();
+    postgresqlSchemas.add(
+        new PostgresqlSchema().setSchema(schemaName).setPostgresqlTables(postgresqlTables));
+
+    PostgresqlRdbms rdbms = new PostgresqlRdbms().setPostgresqlSchemas(postgresqlSchemas);
+
+    return rdbms;
+  }
+
   public StandardSQLTypeName convertOracleToBigQueryColumnType(OracleColumn column) {
     String dataType = column.getDataType();
 
@@ -455,6 +532,74 @@ public class DataStreamClient implements Serializable {
       return StandardSQLTypeName.TIMESTAMP; // TODO: what type do we want here?
     } else {
       LOG.warn("Datastream MySQL Type Unknown, Default to String: \"{}\"", dataType);
+      return StandardSQLTypeName.STRING;
+    }
+  }
+
+  public StandardSQLTypeName convertPostgresqlToBigQueryColumnType(PostgresqlColumn column) {
+    String dataType = column.getDataType().toUpperCase();
+
+    switch (dataType) {
+      case "BOOLEAN":
+        return StandardSQLTypeName.BOOL;
+      case "BLOB":
+      case "VARCHAR":
+      case "CHAR":
+      case "CHARACTER":
+      case "CHARACTER VARYING":
+      case "TINYTEXT":
+      case "TEXT":
+      case "MEDIUMTEXT":
+      case "LONGTEXT":
+      case "UUID":
+      case "XML":
+        return StandardSQLTypeName.STRING;
+      case "TINYINT":
+      case "SMALLINT":
+      case "MEDIUMINT":
+      case "INT":
+      case "INTEGER":
+      case "SMALLSERIAL":
+      case "SERIAL":
+      case "BIGINT":
+        return StandardSQLTypeName.INT64;
+      case "REAL":
+      case "DOUBLE PRECISION":
+        return StandardSQLTypeName.FLOAT64;
+      case "DECIMAL":
+      case "NUMERIC":
+        return StandardSQLTypeName.BIGNUMERIC;
+      case "BIT":
+      case "BIT VARYING":
+      case "BYTEA":
+        return StandardSQLTypeName.BYTES;
+      case "DATETIME":
+        return StandardSQLTypeName.TIMESTAMP;
+      case "DATE":
+        return StandardSQLTypeName.DATE;
+      case "JSON":
+      case "JSONB":
+        return StandardSQLTypeName.JSON;
+        // (naveronen) - i'm setting this a STRING for now, but some customers might
+        // need a
+        // different
+        // solution. once we encounter such cases, we might need to adjust this
+      case "SET":
+      case "ENUM":
+        return StandardSQLTypeName.STRING;
+      default:
+    }
+
+    if (TIMESTAMP_PATTERN.matcher(dataType).matches()) {
+      return StandardSQLTypeName.TIMESTAMP;
+    } else if (TIMESTAMP_WITHOUT_TIMEZONE_PATTERN.matcher(dataType).matches()) {
+      return StandardSQLTypeName.TIMESTAMP;
+    } else if (TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(dataType).matches()) {
+      return StandardSQLTypeName.TIMESTAMP; // TODO: what type do we want here?
+    } else if (TIMESTAMP_WITH_LOCAL_TIMEZONE_PATTERN.matcher(dataType).matches()) {
+      return StandardSQLTypeName.TIMESTAMP; // TODO: what type do we want here?
+    } else {
+      LOG.warn("Datastream PostgreSQL Type Unknown, Default to String: \"{}\"", dataType);
       return StandardSQLTypeName.STRING;
     }
   }

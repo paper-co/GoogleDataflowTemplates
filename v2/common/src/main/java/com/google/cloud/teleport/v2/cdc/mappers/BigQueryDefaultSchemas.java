@@ -55,6 +55,10 @@ public final class BigQueryDefaultSchemas {
           put("_metadata_rs_id", StandardSQLTypeName.STRING);
           put("_metadata_ssn", StandardSQLTypeName.INT64);
 
+          // PostgreSQL Specific Metadata
+          put("_metadata_tx_id", StandardSQLTypeName.STRING);
+          put("_metadata_lsn", StandardSQLTypeName.STRING);
+
           // MySQL Specific Metadata
           put("_metadata_log_file", StandardSQLTypeName.STRING);
           put("_metadata_log_position", StandardSQLTypeName.INT64);
