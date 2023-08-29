@@ -1,7 +1,7 @@
 steps:
   - name: maven:3.9-eclipse-temurin-20
     entrypoint: mvn
-    args: ['clean install -pl plugins/templates-maven-plugin -am']
+    args: ['install -pl plugins/templates-maven-plugin -am']
   - name: maven:3.9-eclipse-temurin-20
     entrypoint: mvn
     args: 
