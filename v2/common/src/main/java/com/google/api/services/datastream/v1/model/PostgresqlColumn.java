@@ -34,9 +34,6 @@ public final class PostgresqlColumn extends com.google.api.client.json.GenericJs
   /** The Postgresql data type. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.String dataType;
 
-  /** Column encoding. The value may be {@code null}. */
-  @com.google.api.client.util.Key private java.lang.String encoding;
-
   /** Column length. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.Integer length;
 
@@ -90,25 +87,6 @@ public final class PostgresqlColumn extends com.google.api.client.json.GenericJs
    */
   public PostgresqlColumn setDataType(java.lang.String dataType) {
     this.dataType = dataType;
-    return this;
-  }
-
-  /**
-   * Column encoding.
-   *
-   * @return value or {@code null} for none
-   */
-  public java.lang.String getEncoding() {
-    return encoding;
-  }
-
-  /**
-   * Column encoding.
-   *
-   * @param encoding encoding or {@code null} for none
-   */
-  public PostgresqlColumn setEncoding(java.lang.String encoding) {
-    this.encoding = encoding;
     return this;
   }
 

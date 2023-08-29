@@ -29,7 +29,8 @@ package com.google.api.services.datastream.v1.model;
 public final class PostgresqlSchema extends com.google.api.client.json.GenericJson {
 
   /** Tables in the schema. The value may be {@code null}. */
-  @com.google.api.client.util.Key private java.util.List<PostgresqlTable> PostgresqlTables;
+  @com.google.api.client.util.Key
+  private java.util.List<PostgresqlTable> postgresqlTables;
 
   /** Schema name. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.String schema;
@@ -40,16 +41,16 @@ public final class PostgresqlSchema extends com.google.api.client.json.GenericJs
    * @return value or {@code null} for none
    */
   public java.util.List<PostgresqlTable> getPostgresqlTables() {
-    return PostgresqlTables;
+    return postgresqlTables;
   }
 
   /**
    * Tables in the schema.
    *
-   * @param PostgresqlTables PostgresqlTables or {@code null} for none
+   * @param postgresqlTables postgresqlTables or {@code null} for none
    */
-  public PostgresqlSchema setPostgresqlTables(java.util.List<PostgresqlTable> PostgresqlTables) {
-    this.PostgresqlTables = PostgresqlTables;
+  public PostgresqlSchema setPostgresqlTables(java.util.List<PostgresqlTable> postgresqlTables) {
+    this.postgresqlTables = postgresqlTables;
     return this;
   }
 

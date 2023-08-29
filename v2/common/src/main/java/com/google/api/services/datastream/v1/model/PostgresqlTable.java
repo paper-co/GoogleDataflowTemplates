@@ -32,7 +32,8 @@ public final class PostgresqlTable extends com.google.api.client.json.GenericJso
    * Postgresql columns in the schema. When unspecified as part of include/exclude objects,
    * includes/excludes everything. The value may be {@code null}.
    */
-  @com.google.api.client.util.Key private java.util.List<PostgresqlColumn> PostgresqlColumns;
+  @com.google.api.client.util.Key
+  private java.util.List<PostgresqlColumn> postgresqlColumns;
 
   /** Table name. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.String table;
@@ -44,17 +45,18 @@ public final class PostgresqlTable extends com.google.api.client.json.GenericJso
    * @return value or {@code null} for none
    */
   public java.util.List<PostgresqlColumn> getPostgresqlColumns() {
-    return PostgresqlColumns;
+    return postgresqlColumns;
   }
 
   /**
-   * Postgresql columns in the schema. When unspecified as part of include/exclude objects,
+   * Postgresql columns in the schema. When unspecified as part of include/exclude
+   * objects,
    * includes/excludes everything.
    *
-   * @param PostgresqlColumns PostgresqlColumns or {@code null} for none
+   * @param postgresqlColumns postgresqlColumns or {@code null} for none
    */
-  public PostgresqlTable setPostgresqlColumns(java.util.List<PostgresqlColumn> PostgresqlColumns) {
-    this.PostgresqlColumns = PostgresqlColumns;
+  public PostgresqlTable setPostgresqlColumns(java.util.List<PostgresqlColumn> postgresqlColumns) {
+    this.postgresqlColumns = postgresqlColumns;
     return this;
   }
 
