@@ -581,6 +581,8 @@ public class DataStreamClient implements Serializable {
       case "TIME WITHOUT TIME ZONE":
       case "TIME WITH TIME ZONE":
         return StandardSQLTypeName.TIME;
+      case "INTERVAL":
+        return StandardSQLTypeName.INTERVAL;
       case "JSON":
       case "JSONB":
         return StandardSQLTypeName.JSON;
