@@ -348,15 +348,7 @@ public class TemplatesStageMojo extends TemplatesBaseMojo {
     String projectIdUrl = projectId.replace(':', '/');
     String imagePath =
         Optional.ofNullable(artifactRegistry)
-            .map(
-                value ->
-                    value
-                        + "/"
-                        + projectIdUrl
-                        + "/"
-                        + stagePrefix.toLowerCase()
-                        + "/"
-                        + containerName)
+            .map(value -> value + "/" + stagePrefix.toLowerCase() + "/" + containerName)
             .orElse(
                 prefix
                     + "gcr.io/"
