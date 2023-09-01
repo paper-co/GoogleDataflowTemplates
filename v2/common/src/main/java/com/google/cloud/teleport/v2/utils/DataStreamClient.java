@@ -577,17 +577,14 @@ public class DataStreamClient implements Serializable {
         return StandardSQLTypeName.TIMESTAMP;
       case "DATE":
         return StandardSQLTypeName.DATE;
-        // Unique to Paper's Laravel+PHP+Postgres setup that without tz is UTC
-        // Time on postgres is structurally different from on BQ
-      case "TIME WITHOUT TIME ZONE":
-      case "TIME WITH TIME ZONE":
-        return StandardSQLTypeName.STRING;
-      case "INTERVAL":
-        return StandardSQLTypeName.INTERVAL;
       case "JSON":
       case "JSONB":
         return StandardSQLTypeName.JSON;
+        // Time on postgres is structurally different from on BQ and so it doesn't work
+      case "TIME WITHOUT TIME ZONE":
+      case "TIME WITH TIME ZONE":
       case "SET":
+      case "INTERVAL":
       case "ENUM":
         return StandardSQLTypeName.STRING;
       default:
@@ -595,6 +592,7 @@ public class DataStreamClient implements Serializable {
 
     if (TIMESTAMP_PATTERN.matcher(dataType).matches()) {
       return StandardSQLTypeName.TIMESTAMP;
+      // Unique to Paper's Laravel+PHP+Postgres setup that without tz is UTC
     } else if (TIMESTAMP_WITHOUT_TIMEZONE_PATTERN.matcher(dataType).matches()) {
       return StandardSQLTypeName.TIMESTAMP;
     } else if (TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(dataType).matches()) {
