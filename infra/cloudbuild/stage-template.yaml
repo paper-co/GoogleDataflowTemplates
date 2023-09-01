@@ -8,7 +8,7 @@ steps:
       - 'package'
       - '-PtemplateStage' 
       - '-DskipTests'
-      - '-DprojectId="${_TARGET_PROJECT}"'
+      - '-DprojectId="${_TARGET_PROJECT_ID}"'
       - '-DbucketName="${_TARGET_BUCKET_NAME}"'
       - '-DstagePrefix="images/$(date +%Y_%m_%d-%H_%M)"'
       - '-DtemplateName="Cloud_Datastream_to_BigQuery"'
