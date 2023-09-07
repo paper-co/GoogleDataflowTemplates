@@ -82,7 +82,7 @@ public final class SourceConfig extends com.google.api.client.json.GenericJson {
   }
 
   /**
-   * PostgreSQL data source configuration.
+   * Postgresql data source configuration.
    *
    * @return value or {@code null} for none
    */
@@ -91,7 +91,7 @@ public final class SourceConfig extends com.google.api.client.json.GenericJson {
   }
 
   /**
-   * PostgreSQL data source configuration.
+   * Postgresql data source configuration.
    *
    * @param postgresqlSourceConfig postgresqlSourceConfig or {@code null} for none
    */

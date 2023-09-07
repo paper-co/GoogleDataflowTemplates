@@ -176,7 +176,7 @@ public class DatastreamRow {
     } else if (this.getSourceType().equals("postgresql")) {
       return Arrays.asList("_metadata_timestamp", "_metadata_lsn", "_metadata_tx_id");
     } else {
-      // Default is still oracle
+      // Current default is oracle.
       return Arrays.asList(
           "_metadata_timestamp", "_metadata_scn", "_metadata_rs_id", "_metadata_ssn");
     }
