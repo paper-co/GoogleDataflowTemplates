@@ -543,12 +543,12 @@ public class DataStreamClient implements Serializable {
       case "BOOLEAN":
         return StandardSQLTypeName.BOOL;
       case "BLOB":
-      case "VARCHAR":
       case "CHAR":
       case "CHARACTER":
       case "CHARACTER VARYING":
-      case "TINYTEXT":
+      case "VARCHAR":
       case "TEXT":
+      case "TINYTEXT":
       case "MEDIUMTEXT":
       case "LONGTEXT":
       case "UUID":
