@@ -32,7 +32,7 @@ public final class PostgresqlSchema extends com.google.api.client.json.GenericJs
 
   /** Schema name. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.String schema;
-  
+
   /**
    * Tables in the schema.
    *

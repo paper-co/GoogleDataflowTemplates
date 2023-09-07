@@ -36,20 +36,23 @@ public final class PostgresqlColumn extends com.google.api.client.json.GenericJs
   /** Column length. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.Integer length;
 
-  /** Whether or not the column can accept a null value. The value may be {@code null}. */
-  @com.google.api.client.util.Key private java.lang.Boolean nullable;
-
-  /** The ordinal position of the column in the table. The value may be {@code null}. */
-  @com.google.api.client.util.Key private java.lang.Integer ordinalPosition;
-
   /** Column precision. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.Integer precision;
+
+  /** Column scale. The value may be {@code null}. */
+  @com.google.api.client.util.Key private java.lang.Integer scale;
 
   /** Whether or not the column represents a primary key. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.Boolean primaryKey;
 
-  /** Column scale. The value may be {@code null}. */
-  @com.google.api.client.util.Key private java.lang.Integer scale;
+  /** Whether or not the column can accept a null value. The value may be {@code null}. */
+  @com.google.api.client.util.Key private java.lang.Boolean nullable;
+
+  /** Column encoding. The value may be {@code null}. */
+  @com.google.api.client.util.Key private java.lang.String encoding;
+
+  /** The ordinal position of the column in the table. The value may be {@code null}. */
+  @com.google.api.client.util.Key private java.lang.Integer ordinalPosition;
 
   /**
    * Column name.
@@ -86,6 +89,25 @@ public final class PostgresqlColumn extends com.google.api.client.json.GenericJs
    */
   public PostgresqlColumn setDataType(java.lang.String dataType) {
     this.dataType = dataType;
+    return this;
+  }
+
+  /**
+   * Column encoding.
+   *
+   * @return value or {@code null} for none
+   */
+  public java.lang.String getEncoding() {
+    return encoding;
+  }
+
+  /**
+   * Column encoding.
+   *
+   * @param encoding encoding or {@code null} for none
+   */
+  public PostgresqlColumn setEncoding(java.lang.String encoding) {
+    this.encoding = encoding;
     return this;
   }
 

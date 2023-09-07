@@ -94,25 +94,6 @@ public final class DiscoverConnectionProfileResponse
     return this;
   }
 
-  /**
-   * Enriched PostgreSQL RDBMS object.
-   *
-   * @return value or {@code null} for none
-   */
-  public PostgresqlRdbms getPostgresqlRdbms() {
-    return postgresqlRdbms;
-  }
-
-  /**
-   * Enriched PostgreSQL RDBMS object.
-   *
-   * @param postgresqlRdbms postgresqlRdbms or {@code null} for none
-   */
-  public DiscoverConnectionProfileResponse setPostgresqlRdbms(PostgresqlRdbms postgresqlRdbms) {
-    this.postgresqlRdbms = postgresqlRdbms;
-    return this;
-  }
-
   @Override
   public DiscoverConnectionProfileResponse set(String fieldName, Object value) {
     return (DiscoverConnectionProfileResponse) super.set(fieldName, value);
