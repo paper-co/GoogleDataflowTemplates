@@ -16,12 +16,11 @@
 package com.google.api.services.datastream.v1.model;
 
 /**
- * Postgresql table.
+ * PostgreSQL table.
  *
  * <p>This is the Java data model class that specifies how to parse/serialize into the JSON that is
  * transmitted over HTTP when working with the Datastream API. For a detailed explanation see: <a
- * href=
- * "https://developers.google.com/api-client-library/java/google-http-java-client/json">https://developers.google.com/api-client-library/java/google-http-java-client/json</a>
+ * href="https://developers.google.com/api-client-library/java/google-http-java-client/json">https://developers.google.com/api-client-library/java/google-http-java-client/json</a>
  *
  * @author Google, Inc.
  */

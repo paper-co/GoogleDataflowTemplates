@@ -32,6 +32,7 @@ import com.google.cloud.teleport.plugin.model.ImageSpec;
 import com.google.cloud.teleport.plugin.model.TemplateDefinitions;
 import freemarker.template.TemplateException;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;
@@ -109,9 +110,6 @@ public class TemplatesStageMojo extends TemplatesBaseMojo {
       required = false)
   protected String basePythonContainerImage;
 
-  @Parameter(name = "dockerfilePath", defaultValue = "${dockerfilePath}", required = false)
-  protected String dockerfilePath;
-
   public TemplatesStageMojo() {}
 
   public TemplatesStageMojo(
@@ -130,8 +128,7 @@ public class TemplatesStageMojo extends TemplatesBaseMojo {
       String artifactRegion,
       String gcpTempLocation,
       String baseContainerImage,
-      String basePythonContainerImage,
-      String dockerfilePath) {
+      String basePythonContainerImage) {
     this.project = project;
     this.session = session;
     this.outputDirectory = outputDirectory;
@@ -148,7 +145,6 @@ public class TemplatesStageMojo extends TemplatesBaseMojo {
     this.gcpTempLocation = gcpTempLocation;
     this.baseContainerImage = baseContainerImage;
     this.basePythonContainerImage = basePythonContainerImage;
-    this.dockerfilePath = dockerfilePath;
   }
 
   public void execute() throws MojoExecutionException {
@@ -462,11 +458,13 @@ public class TemplatesStageMojo extends TemplatesBaseMojo {
       String templatePath)
       throws IOException, InterruptedException, TemplateException {
 
-    if (dockerfilePath == null) {
+    String dockerfilePath = outputClassesDirectory.getPath() + "/" + containerName + "/Dockerfile";
+    File dockerfile = new File(dockerfilePath);
+    if (!dockerfile.exists()) {
       PythonDockerfileGenerator.generateDockerfile(
           basePythonContainerImage, containerName, outputClassesDirectory);
     }
-    stageUsingDockerfile(imagePath);
+    stageUsingDockerfile(imagePath, containerName);
 
     String[] flexTemplateBuildCmd =
         new String[] {
@@ -503,27 +501,56 @@ public class TemplatesStageMojo extends TemplatesBaseMojo {
     }
   }
 
-  private void stageUsingDockerfile(String imagePath) throws IOException, InterruptedException {
-    String[] gcloudBuildsCmd =
-        new String[] {"gcloud", "builds", "submit", "--tag", imagePath, "--project", projectId};
-    LOG.info("Running: {}", String.join(" ", gcloudBuildsCmd));
+  private void stageUsingDockerfile(String imagePath, String containerName)
+      throws IOException, InterruptedException {
+    File directory = new File(outputClassesDirectory.getAbsolutePath() + "/" + containerName);
 
-    Process process =
-        Runtime.getRuntime()
-            .exec(
-                gcloudBuildsCmd,
-                null,
-                new File(
-                    dockerfilePath == null
-                        ? outputClassesDirectory.getAbsolutePath()
-                        : dockerfilePath));
+    File cloudbuildFile = File.createTempFile("cloudbuild", ".yaml");
+    try (FileWriter writer = new FileWriter(cloudbuildFile)) {
+      String cacheFolder = imagePath.substring(0, imagePath.lastIndexOf('/')) + "/cache";
+      writer.write(
+          "steps:\n"
+              + "- name: gcr.io/kaniko-project/executor\n"
+              + "  args:\n"
+              + "  - --destination="
+              + imagePath
+              + "\n"
+              + "  - --cache=true\n"
+              + "  - --cache-ttl=6h\n"
+              + "  - --compressed-caching=false\n"
+              + "  - --cache-copy-layers=true\n"
+              + "  - --cache-repo="
+              + cacheFolder);
+    }
 
-    TemplatePluginUtils.redirectLinesLog(process.getInputStream(), LOG);
-    TemplatePluginUtils.redirectLinesLog(process.getErrorStream(), LOG);
-
-    if (process.waitFor() != 0) {
+    Process stageProcess =
+        runCommand(
+            new String[] {
+              "gcloud",
+              "builds",
+              "submit",
+              "--config",
+              cloudbuildFile.getAbsolutePath(),
+              "--machine-type",
+              "e2-highcpu-8",
+              "--disk-size",
+              "200",
+              "--project",
+              projectId
+            },
+            directory);
+    if (stageProcess.waitFor() != 0) {
       throw new RuntimeException(
           "Error building container image using gcloud. Check logs for details.");
     }
+  }
+
+  private static Process runCommand(String[] gcloudBuildsCmd, File directory) throws IOException {
+    LOG.info("Running: {}", String.join(" ", gcloudBuildsCmd));
+
+    Process process = Runtime.getRuntime().exec(gcloudBuildsCmd, null, directory);
+    TemplatePluginUtils.redirectLinesLog(process.getInputStream(), LOG);
+    TemplatePluginUtils.redirectLinesLog(process.getErrorStream(), LOG);
+    return process;
   }
 }

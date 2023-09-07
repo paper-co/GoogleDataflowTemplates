@@ -20,8 +20,7 @@ package com.google.api.services.datastream.v1.model;
  *
  * <p>This is the Java data model class that specifies how to parse/serialize into the JSON that is
  * transmitted over HTTP when working with the Datastream API. For a detailed explanation see: <a
- * href=
- * "https://developers.google.com/api-client-library/java/google-http-java-client/json">https://developers.google.com/api-client-library/java/google-http-java-client/json</a>
+ * href="https://developers.google.com/api-client-library/java/google-http-java-client/json">https://developers.google.com/api-client-library/java/google-http-java-client/json</a>
  *
  * @author Google, Inc.
  */
@@ -31,7 +30,7 @@ public final class PostgresqlColumn extends com.google.api.client.json.GenericJs
   /** Column name. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.String column;
 
-  /** The Postgresql data type. The value may be {@code null}. */
+  /** The PostgreSQL data type. The value may be {@code null}. */
   @com.google.api.client.util.Key private java.lang.String dataType;
 
   /** Column length. The value may be {@code null}. */
@@ -72,7 +71,7 @@ public final class PostgresqlColumn extends com.google.api.client.json.GenericJs
   }
 
   /**
-   * The Postgresql data type.
+   * The PostgreSQL data type.
    *
    * @return value or {@code null} for none
    */
@@ -81,7 +80,7 @@ public final class PostgresqlColumn extends com.google.api.client.json.GenericJs
   }
 
   /**
-   * The Postgresql data type.
+   * The PostgreSQL data type.
    *
    * @param dataType dataType or {@code null} for none
    */

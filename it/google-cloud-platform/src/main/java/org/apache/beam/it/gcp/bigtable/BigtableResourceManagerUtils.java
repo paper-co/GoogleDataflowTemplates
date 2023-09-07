@@ -22,7 +22,7 @@ import static org.apache.beam.it.common.utils.ResourceManagerUtils.generateResou
 import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Pattern;
-import org.apache.beam.vendor.guava.v26_0_jre.com.google.common.collect.ImmutableList;
+import org.apache.beam.vendor.guava.v32_1_2_jre.com.google.common.collect.ImmutableList;
 
 /** Utilities for {@link BigtableResourceManager} implementations. */
 public final class BigtableResourceManagerUtils {
@@ -34,7 +34,7 @@ public final class BigtableResourceManagerUtils {
   private static final Pattern ILLEGAL_INSTANCE_ID_CHARS = Pattern.compile("[^a-z0-9-]");
   private static final String REPLACE_INSTANCE_ID_CHAR = "-";
   private static final int MIN_TABLE_ID_LENGTH = 1;
-  private static final int MAX_TABLE_ID_LENGTH = 30;
+  private static final int MAX_TABLE_ID_LENGTH = 40;
   private static final Pattern ILLEGAL_TABLE_CHARS = Pattern.compile("[^a-zA-Z0-9-_.]");
   private static final String REPLACE_TABLE_ID_CHAR = "-";
 

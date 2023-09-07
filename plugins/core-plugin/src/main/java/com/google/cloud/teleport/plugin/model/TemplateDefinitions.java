@@ -22,6 +22,8 @@ import com.google.cloud.teleport.metadata.Template.TemplateType;
 import com.google.cloud.teleport.metadata.TemplateCreationParameter;
 import com.google.cloud.teleport.metadata.TemplateCreationParameters;
 import com.google.cloud.teleport.metadata.TemplateIgnoreParameter;
+import com.google.cloud.teleport.metadata.auto.AutoTemplate;
+import com.google.cloud.teleport.metadata.auto.AutoTemplate.ExecutionBlock;
 import com.google.cloud.teleport.metadata.util.MetadataUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
@@ -96,7 +98,7 @@ public class TemplateDefinitions {
     ImageSpec imageSpec = new ImageSpec();
 
     SdkInfo sdkInfo = new SdkInfo();
-    sdkInfo.setLanguage("JAVA");
+    sdkInfo.setLanguage(templateAnnotation.type().toString());
     imageSpec.setSdkInfo(sdkInfo);
 
     ImageSpecMetadata metadata = new ImageSpecMetadata();
@@ -142,6 +144,23 @@ public class TemplateDefinitions {
     if (templateAnnotation.optionsOrder() != null) {
       for (Class<?> options : templateAnnotation.optionsOrder()) {
         classOrder.putIfAbsent(options, order++);
+      }
+    }
+
+    // If blocks were defined, go through each block's option class
+    if (templateAnnotation.blocks()[0] != void.class) {
+      try {
+        List<ExecutionBlock> executionBlocks = AutoTemplate.buildExecutionBlocks(templateClass);
+        for (ExecutionBlock block : executionBlocks) {
+          classOrder.putIfAbsent(block.getBlockInstance().getOptionsClass(), order++);
+        }
+        optionsClass =
+            AutoTemplate.createNewOptionsClass(
+                executionBlocks,
+                templateClass.getClassLoader(),
+                AutoTemplate.getDlqInstance(templateClass));
+      } catch (Exception e) {
+        throw new RuntimeException("Error parsing template blocks", e);
       }
     }
 
@@ -215,13 +234,7 @@ public class TemplateDefinitions {
                   + "."
                   + methodName
                   + "() does not have a @TemplateParameter annotation (and not deprecated).");
-        } else {
-          LOG.warn(
-              "Method {} (declared at {}) does not have an annotation",
-              methodName,
-              method.getDeclaringClass().getName());
         }
-
         continue;
       }
 
