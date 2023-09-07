@@ -328,6 +328,22 @@ public class DataStreamClient implements Serializable {
     return objectSchema;
   }
 
+  public List<String> getPostgresqlPrimaryKeys(
+      String streamName, String schemaName, String tableName, SourceConfig sourceConnProfile)
+      throws IOException {
+    List<String> primaryKeys = new ArrayList<String>();
+    PostgresqlTable table =
+        discoverPostgresqlTableSchema(streamName, schemaName, tableName, sourceConnProfile);
+    for (PostgresqlColumn column : table.getPostgresqlColumns()) {
+      Boolean isPrimaryKey = column.getPrimaryKey();
+      if (BooleanUtils.isTrue(isPrimaryKey)) {
+        primaryKeys.add(column.getColumn());
+      }
+    }
+
+    return primaryKeys;
+  }
+
   private Map<String, StandardSQLTypeName> getPostgresqlObjectSchema(
       String streamName, String schemaName, String tableName, SourceConfig sourceConnProfile)
       throws IOException {
@@ -373,22 +389,6 @@ public class DataStreamClient implements Serializable {
     OracleRdbms rdbms = new OracleRdbms().setOracleSchemas(oracleSchemas);
 
     return rdbms;
-  }
-
-  public List<String> getPostgresqlPrimaryKeys(
-      String streamName, String schemaName, String tableName, SourceConfig sourceConnProfile)
-      throws IOException {
-    List<String> primaryKeys = new ArrayList<String>();
-    PostgresqlTable table =
-        discoverPostgresqlTableSchema(streamName, schemaName, tableName, sourceConnProfile);
-    for (PostgresqlColumn column : table.getPostgresqlColumns()) {
-      Boolean isPrimaryKey = column.getPrimaryKey();
-      if (BooleanUtils.isTrue(isPrimaryKey)) {
-        primaryKeys.add(column.getColumn());
-      }
-    }
-
-    return primaryKeys;
   }
 
   /**
