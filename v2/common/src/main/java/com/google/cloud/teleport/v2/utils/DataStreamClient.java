@@ -596,9 +596,9 @@ public class DataStreamClient implements Serializable {
     } else if (TIMESTAMP_WITHOUT_TIMEZONE_PATTERN.matcher(dataType).matches()) {
       return StandardSQLTypeName.TIMESTAMP;
     } else if (TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(dataType).matches()) {
-      return StandardSQLTypeName.TIMESTAMP;
+      return StandardSQLTypeName.TIMESTAMP; // TODO: what type do we want here?
     } else if (TIMESTAMP_WITH_LOCAL_TIMEZONE_PATTERN.matcher(dataType).matches()) {
-      return StandardSQLTypeName.TIMESTAMP;
+      return StandardSQLTypeName.TIMESTAMP; // TODO: what type do we want here?
     } else {
       LOG.warn("Datastream PostgreSQL Type Unknown, Default to String: \"{}\"", dataType);
       return StandardSQLTypeName.STRING;
