@@ -4,9 +4,9 @@ steps:
     args: ['install -pl plugins/templates-maven-plugin -am']
   - name: maven:3.9-eclipse-temurin-20
     entrypoint: mvn
-    args: 
+    args:
       - 'package'
-      - '-PtemplateStage' 
+      - '-PtemplateStage'
       - '-DskipTests'
       - '-DprojectId="${_TARGET_PROJECT_ID}"'
       - '-DbucketName="${_TARGET_BUCKET_NAME}"'
