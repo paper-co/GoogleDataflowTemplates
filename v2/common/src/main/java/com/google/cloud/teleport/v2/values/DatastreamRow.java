@@ -134,14 +134,14 @@ public class DatastreamRow {
       }
     }
 
-    // Special case handling for {_metadata_stream_target_dataset} which is purely a
-    // derived value
-    if (template.contains("{_metadata_stream_target_dataset}")) {
-      String metadataValue = values.get("_metadata_stream");
-      metadataValue = metadataValue.substring(metadataValue.lastIndexOf('/') + 1);
-      // Update the values map with the modified metadata value
-      values.put("_metadata_stream_target_dataset", metadataValue);
+    // Special case handling for {_metadata_stream_write_path_node} which is purely a derived value
+    if (template.contains("{_metadata_stream_write_path_node}")) {
+        values.put(
+            "_metadata_stream_write_path_node",
+            values.get("_metadata_stream").substring(metadataValue.lastIndexOf('/') + 1)
+        );
     }
+
     // Substitute any templated values in the template
     String result = StringSubstitutor.replace(template, values, "{", "}");
     return result;

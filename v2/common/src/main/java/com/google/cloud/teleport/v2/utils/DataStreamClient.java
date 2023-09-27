@@ -540,65 +540,63 @@ public class DataStreamClient implements Serializable {
     String dataType = column.getDataType().toUpperCase();
 
     switch (dataType) {
-      case "BOOLEAN":
-        return StandardSQLTypeName.BOOL;
-      case "BLOB":
-      case "CHAR":
-      case "CHARACTER":
-      case "CHARACTER VARYING":
-      case "VARCHAR":
-      case "TEXT":
-      case "TINYTEXT":
-      case "MEDIUMTEXT":
-      case "LONGTEXT":
-      case "UUID":
-      case "XML":
-        return StandardSQLTypeName.STRING;
-      case "TINYINT":
-      case "SMALLINT":
-      case "MEDIUMINT":
-      case "INT":
-      case "INTEGER":
-      case "SMALLSERIAL":
-      case "SERIAL":
-      case "BIGINT":
-        return StandardSQLTypeName.INT64;
-      case "REAL":
-      case "DOUBLE PRECISION":
-        return StandardSQLTypeName.FLOAT64;
       case "DECIMAL":
       case "NUMERIC":
         return StandardSQLTypeName.BIGNUMERIC;
-      case "BIT":
+      case "BOOLEAN":
+        return StandardSQLTypeName.BOOL;
       case "BIT VARYING":
+      case "BIT":
+      // BYTEA encounters a "Avro File Read Failure" error
       case "BYTEA":
         return StandardSQLTypeName.BYTES;
-      case "DATETIME":
-        return StandardSQLTypeName.TIMESTAMP;
       case "DATE":
         return StandardSQLTypeName.DATE;
+      case "DOUBLE PRECISION":
+      case "REAL":
+        return StandardSQLTypeName.FLOAT64;
+      case "BIGINT":
+      case "INT":
+      case "INTEGER":
+      case "MEDIUMINT":
+      case "SERIAL":
+      case "SMALLINT":
+      case "SMALLSERIAL":
+      case "TINYINT":
+        return StandardSQLTypeName.INT64;
       case "JSON":
       case "JSONB":
         return StandardSQLTypeName.JSON;
-        // Time on postgres is structurally different from on BQ and so it doesn't work
-      case "TIME WITHOUT TIME ZONE":
-      case "TIME WITH TIME ZONE":
-      case "SET":
-      case "INTERVAL":
+      case "BLOB":
+      case "CHAR":
+      case "CHARACTER VARYING":
+      case "CHARACTER":
       case "ENUM":
+      case "INTERVAL":
+      case "LONGTEXT":
+      case "MEDIUMTEXT":
+      // SET conversion unclear
+      case "SET":
+      case "TEXT":
+      // Time in PostgreSQL is structurally different than BigQuery, so the TIME BigQuery data type cannot be used
+      case "TIME WITH TIME ZONE":
+      case "TIME WITHOUT TIME ZONE":
+      case "TINYTEXT":
+      case "UUID":
+      case "VARCHAR":
+      case "XML":
         return StandardSQLTypeName.STRING;
       default:
     }
 
     if (TIMESTAMP_PATTERN.matcher(dataType).matches()) {
       return StandardSQLTypeName.TIMESTAMP;
-      // Unique to Paper's Laravel+PHP+Postgres setup that without tz is UTC
-    } else if (TIMESTAMP_WITHOUT_TIMEZONE_PATTERN.matcher(dataType).matches()) {
-      return StandardSQLTypeName.TIMESTAMP;
     } else if (TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(dataType).matches()) {
-      return StandardSQLTypeName.TIMESTAMP; // TODO: what type do we want here?
+      return StandardSQLTypeName.TIMESTAMP;
+    } else if (TIMESTAMP_WITHOUT_TIMEZONE_PATTERN.matcher(dataType).matches()) {
+      return StandardSQLTypeName.DATETIME;
     } else if (TIMESTAMP_WITH_LOCAL_TIMEZONE_PATTERN.matcher(dataType).matches()) {
-      return StandardSQLTypeName.TIMESTAMP; // TODO: what type do we want here?
+      return StandardSQLTypeName.DATETIME;
     } else {
       LOG.warn("Datastream PostgreSQL Type Unknown, Default to String: \"{}\"", dataType);
       return StandardSQLTypeName.STRING;
