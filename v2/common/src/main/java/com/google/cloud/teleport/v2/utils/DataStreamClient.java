@@ -589,10 +589,10 @@ public class DataStreamClient implements Serializable {
       default:
     }
 
-    if (TIMESTAMP_PATTERN.matcher(dataType).matches()) {
+    if (TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(dataType).matches()) {
       return StandardSQLTypeName.TIMESTAMP;
-    } else if (TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(dataType).matches()) {
-      return StandardSQLTypeName.TIMESTAMP;
+    } else if (TIMESTAMP_PATTERN.matcher(dataType).matches()) {
+      return StandardSQLTypeName.DATETIME;
     } else if (TIMESTAMP_WITHOUT_TIMEZONE_PATTERN.matcher(dataType).matches()) {
       return StandardSQLTypeName.DATETIME;
     } else if (TIMESTAMP_WITH_LOCAL_TIMEZONE_PATTERN.matcher(dataType).matches()) {
